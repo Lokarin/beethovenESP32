@@ -23,11 +23,13 @@
 // Audio
 Audio audio;
 
+// Variavel para musica pausar
 bool musRun = 1;
 
-// Insert your SSID
+// SSID da rede
 constexpr char WIFI_SSID[] = "x";
 
+// Encontrar canal do wifi
 int32_t getWiFiChannel(const char *ssid) {
   if (int32_t n = WiFi.scanNetworks()) {
       for (uint8_t i=0; i<n; i++) {
@@ -71,14 +73,14 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   
 }
 
-// Estrutura da mensagem
+// Estrutura da mensagem recebida
 typedef struct struct_message {
   int a;
 } struct_message;
 
 struct_message myData;
 
-// Play musica baseada no valor de myData.a
+// Tocar musica baseada no valor de myData.a
 void musicaPlay() {
   if (myData.a == 1) { 
     Serial.println("Musica1");
@@ -113,13 +115,13 @@ void setup() {
     // Wifi modo estacao
     WiFi.mode(WIFI_AP_STA);
 
+    // Canal do wifi
     int32_t channel = getWiFiChannel(WIFI_SSID);
-  
-    WiFi.printDiag(Serial); // Uncomment to verify channel number before
+    WiFi.printDiag(Serial);
     esp_wifi_set_promiscuous(true);
     esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
     esp_wifi_set_promiscuous(false);
-    WiFi.printDiag(Serial); // Uncomment to verify channel change after
+    WiFi.printDiag(Serial);
 
     // Print mac address
     Serial.println(WiFi.macAddress());
@@ -159,6 +161,7 @@ void setup() {
     listDir(SD, "/", 0);
 }
 
+// Pausa/despausa musica
 void musicaPlaying() {
   if (musRun == true) {
     audio.loop(); 
@@ -168,7 +171,6 @@ void musicaPlaying() {
 }
  
 void loop() {
-  // Audio
-  //audio.loop(); 
+  // Pausa/despausa musica
   musicaPlaying();
 }

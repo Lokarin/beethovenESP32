@@ -6,62 +6,62 @@
 #include <esp_now.h>
 
  
-// Replace with your network credentials
+// SSID e Senha do Wifi
 const char* ssid = "x";
 const char* password = "x";
 
-// REPLACE WITH YOUR RECEIVER MAC Address
+// Mac address do slave
 uint8_t broadcastAddress[] = {0x0C, 0xB8, 0x15, 0xC4, 0x0A, 0x14};
 
-// Structure example to send data
-// Must match the receiver structure
+// Estrutura da mensagem enviada
 typedef struct struct_message {
   int a;
 } struct_message;
-
-// Create a struct_message called myData
 struct_message myData;
-
 esp_now_peer_info_t peerInfo;
 
-// callback when data is sent
+// Callback quando a mensagem é enviada
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
- 
+
+// Porta do servidor
 AsyncWebServer server(80);
  
 void setup(){
   Serial.begin(9600);
+
+  // Modo estacao
   WiFi.mode(WIFI_STA);
 
-  // Init ESP-NOW
+  // Comeca ESP-NOW
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
+  // Callbacks
   esp_now_register_send_cb(OnDataSent);
   
-  // Register peer
+  // Registra peer
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
-  // Add peer        
+  // Adiciona       
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
     Serial.println("Failed to add peer");
     return;
   }
 
+  // Inicia SPIFFS
   if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
- 
+
+  // Conecta na wifi
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -69,12 +69,12 @@ void setup(){
     delay(500);
     Serial.print(".");
   }
-
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
   Serial.print("Wi-Fi Channel: ");
   Serial.println(WiFi.channel());
- 
+
+  // Paginas do servidor
   server.on("/index", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", "text/html");
   });
@@ -125,9 +125,11 @@ void setup(){
     request->send(SPIFFS, "/embed.html", "text/html");
   });
 
+  // Inicia o servidor
   server.begin();
 }
 
+// Mensagens enviadas
 void enviaDado(int nMus) {
   Serial.println("Valor enviado: ");
   Serial.print(nMus);
