@@ -1,10 +1,63 @@
+//Bibliotecas
+#include "Arduino.h"
 #include <WiFi.h>
+#include "Audio.h"
+#include "SPI.h"
+#include "SD.h"
 #include <FS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
 #include <esp_now.h>
 
+
+//Pinos de conexão do ESP32 e o módulo de cartão SD
+#define SD_CS          5
+#define SPI_MOSI      23
+#define SPI_MISO      19
+#define SPI_SCK       18
+
+//Pinos de conexão do ESP32-I2S e o módulo I2S/DAC CJMCU 1334
+#define I2S_DOUT      25
+#define I2S_BCLK      27
+#define I2S_LRC       26
+
+// Audio
+Audio audio;
+
+// Variavel para musica pausar
+bool musRun = 1;
+
+// Listar diretorios
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
+  Serial.printf("Listing directory: %s\n", dirname);
+
+  File root = fs.open(dirname);
+  if(!root){
+    Serial.println("Failed to open directory");
+    return;
+  }
+  if(!root.isDirectory()){
+    Serial.println("Not a directory");
+    return;
+  }
+  File file = root.openNextFile();
+  while(file){
+    if(file.isDirectory()){
+      Serial.print("  DIR : ");
+      Serial.println(file.name());
+      if(levels){
+        listDir(fs, file.name(), levels -1);
+      }
+    } else {
+      Serial.print("  FILE: ");
+      Serial.print(file.name());
+      Serial.print("  SIZE: ");
+      Serial.println(file.size());
+    }
+    file = root.openNextFile();
+  }
+}
  
 // SSID e Senha do Wifi
 const char* ssid = "x";
@@ -28,6 +81,24 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 // Porta do servidor
 AsyncWebServer server(80);
+
+// Tocar musica baseada no valor recebido
+void musicaPlay(int mus) {
+  if (mus == 1) { 
+    Serial.println("Musica1");
+    Serial.println();
+    audio.connecttoFS(SD,"/musica1.mp3");
+  } else if (mus == 2) {
+    Serial.println("Musica2");
+    Serial.println();
+    audio.connecttoFS(SD,"/musica2.mp3");
+  } else if (mus == 3) {
+    Serial.println("Pausado/Despausado");
+    Serial.println();
+    musRun = !musRun;
+  }
+  delay(100);
+}
  
 void setup(){
   Serial.begin(9600);
@@ -40,6 +111,29 @@ void setup(){
     Serial.println("Error initializing ESP-NOW");
     return;
   }
+
+  // Setar pino CS do cartao SD como OUTPUT e setar HIGH
+  pinMode(SD_CS, OUTPUT);      
+  digitalWrite(SD_CS, HIGH); 
+    
+  // Comeca SPI 
+  SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
+   
+  // Comeca comunicacao com cartao SD
+  if(!SD.begin(SD_CS))
+  {
+    Serial.println("Error accessing microSD card!");
+    while(true); 
+  }
+
+  // Lista arquivos em /
+  listDir(SD, "/", 0);
+
+  // I2S 
+  audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    
+  // Volume
+  audio.setVolume(21);
 
   // Callbacks
   esp_now_register_send_cb(OnDataSent);
@@ -117,6 +211,28 @@ void setup(){
     enviaDado(3);
   });
 
+  server.on("/musica1Master", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(1);
+  });
+
+  server.on("/musica1MasterPause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(3);
+  });
+
+  server.on("/musica1MasterSlave", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(1);
+    enviaDado(1);
+  });
+
+  server.on("/musica1MasterSlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(3);
+    enviaDado(3);
+  });
+
   server.on("/music-player2", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/music-player2.html", "text/html");
   });
@@ -145,6 +261,17 @@ void enviaDado(int nMus) {
     Serial.println("Error sending the data");
   }
 }
+
+// Pausa/despausa musica
+void musicaPlaying() {
+  if (musRun == true) {
+    audio.loop(); 
+  } else {
+    
+  }
+}
  
 void loop(){
+  // Pausa/despausa musica
+  musicaPlaying();
 }
