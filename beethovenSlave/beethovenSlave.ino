@@ -27,7 +27,7 @@ Audio audio;
 bool musRun = 1;
 
 // SSID da rede
-constexpr char WIFI_SSID[] = "x";
+constexpr char WIFI_SSID[] = "Hotspot";
 
 // Encontrar canal do wifi
 int32_t getWiFiChannel(const char *ssid) {

@@ -41,6 +41,78 @@
     font-size: 20px;
     margin: 10px 0 40px 0;
 }
+
+.btn-group1 {
+    float:left;
+    width:25%;
+}
+
+.btn-group2 {
+    float:left;
+    width:25%;
+}
+
+.btn-group3 {
+    float:right;
+    width:25%;
+}
+
+.btn-group1 button {
+  background-color: #F5B503; /* Green background */
+  border: 1px solid black; /* Green border */
+  color: black; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 100%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.btn-group1 button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group1 button:hover {
+  background-color: #AC934F;
+}
+
+.btn-group2 button {
+  background-color: #F5B503; /* Green background */
+  border: 1px solid black; /* Green border */
+  color: black; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 100%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.btn-group2 button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group2 button:hover {
+  background-color: #AC934F;
+}
+
+.btn-group3 button {
+  background-color: #F5B503; /* Green background */
+  border: 1px solid black; /* Green border */
+  color: black; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 100%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.btn-group3 button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group3 button:hover {
+  background-color: #AC934F;
+}
         </style>
         <title>Musica 1</title>
 
@@ -53,12 +125,18 @@
                 <div class="info">
                     <h2>Belief</h2>
                     <p>Maritumix</p>
-                    <a href="/musica1Master"><input type="button" value="Master"></a>
-                    <a href="/musica1Slave"><input type="button" value="Slave"></a>
-                    <a href="/musica1MasterSlave"><input type="button" value="Master + Slave"></a>
-                    <a href="/musica1MasterPause"><input type="button" value="Pause/Resume Master"></a>
-                    <a href="/musica1SlavePause"><input type="button" value="Pause/Resume Slave"></a>
-                    <a href="/musica1MasterSlavePause"><input type="button" value="Pause/Resume Master+Slave"></a>
+                    <div class="btn-group1">
+                        <a href="/musica1Master"><button>Master</button>
+                        <a href="/musica1MasterPause"><button>Pause/Resume Master</button>
+                    </div>
+                    <div class="btn-group2">
+                        <a href="/musica1Slave"><button>Slave</button>
+                        <a href="/musica1SlavePause"><button>Pause/Resume Slave</button>
+                    </div>
+                    <div class="btn-group2">
+                        <a href="/musica1MasterSlave"><button>Master + Slave</button>
+                        <a href="/musica1MasterSlavePause"><button>Pause/Resume Master + Slave</button>
+                    </div>
                 </div>
                 <!--info-->
             </div>
