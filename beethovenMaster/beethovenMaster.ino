@@ -79,6 +79,23 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
+// Mensagens enviadas
+void enviaDado(int nMus) {
+  Serial.println("Valor enviado: ");
+  Serial.print(nMus);
+  esp_err_t result;
+
+  myData.a = nMus;
+  result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+   
+  if (result == ESP_OK) {
+    Serial.println("Sent with success");
+  }
+  else {
+    Serial.println("Error sending the data");
+  }
+}
+
 // Porta do servidor
 AsyncWebServer server(80);
 
@@ -96,6 +113,18 @@ void musicaPlay(int mus) {
     Serial.println("Pausado/Despausado");
     Serial.println();
     musRun = !musRun;
+  } else if (mus == 4) {
+    Serial.println("Musica3");
+    Serial.println();
+    audio.connecttoFS(SD,"/musica3.mp3");
+  } else if (mus == 5) {
+    audio.setVolume(21);
+    Serial.println("Vol Alto");
+    Serial.println();
+  } else if (mus == 6) {
+    audio.setVolume(5);
+    Serial.println("Vol Alto");
+    Serial.println();
   }
   delay(100);
 }
@@ -133,7 +162,7 @@ void setup(){
   audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     
   // Volume
-  audio.setVolume(21);
+  audio.setVolume(5);
 
   // Callbacks
   esp_now_register_send_cb(OnDataSent);
@@ -201,6 +230,14 @@ void setup(){
     request->send(SPIFFS, "/musica1.html", "text/html");
   });
 
+  server.on("/musica2", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+  });
+
+  server.on("/musica3", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+  });
+
   server.on("/musica1Slave", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/musica1.html", "text/html");
     enviaDado(1);
@@ -223,14 +260,174 @@ void setup(){
 
   server.on("/musica1MasterSlave", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/musica1.html", "text/html");
-    musicaPlay(1);
     enviaDado(1);
+    musicaPlay(1);
   });
 
   server.on("/musica1MasterSlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/musica1.html", "text/html");
-    musicaPlay(3);
     enviaDado(3);
+    musicaPlay(3);
+  });
+
+  server.on("/musica1MasterVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(5);
+  });
+
+  server.on("/musica1MasterVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    musicaPlay(6);
+  });
+
+  server.on("/musica1SlaveVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    enviaDado(5);
+  });
+
+  server.on("/musica1SlaveVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    enviaDado(6);
+  });
+
+  server.on("/musica1MSVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    enviaDado(5);
+    musicaPlay(5);
+  });
+
+  server.on("/musica1MSVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica1.html", "text/html");
+    enviaDado(6);
+    musicaPlay(6);
+  });
+
+  server.on("/musica2Slave", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(2);
+  });
+
+  server.on("/musica2SlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(3);
+  });
+
+  server.on("/musica2Master", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    musicaPlay(2);
+  });
+
+  server.on("/musica2MasterPause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    musicaPlay(3);
+  });
+
+  server.on("/musica2MasterSlave", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(2);
+    musicaPlay(2);
+  });
+
+  server.on("/musica2MasterSlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(3);
+    musicaPlay(3);
+  });
+
+  server.on("/musica2MasterVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    musicaPlay(5);
+  });
+
+  server.on("/musica2MasterVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    musicaPlay(6);
+  });
+
+  server.on("/musica2SlaveVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(5);
+  });
+
+  server.on("/musica2SlaveVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(6);
+  });
+
+  server.on("/musica2MSVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(5);
+    musicaPlay(5);
+  });
+
+  server.on("/musica2MSVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica2.html", "text/html");
+    enviaDado(6);
+    musicaPlay(6);
+  });
+
+  server.on("/musica3Slave", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(4);
+  });
+
+  server.on("/musica3SlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(3);
+  });
+
+  server.on("/musica3Master", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    musicaPlay(4);
+  });
+
+  server.on("/musica3MasterPause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    musicaPlay(3);
+  });
+
+  server.on("/musica3MasterSlave", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(4);
+    musicaPlay(4);
+  });
+
+  server.on("/musica3MasterSlavePause", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(3);
+    musicaPlay(3);
+  });
+
+  server.on("/musica3MasterVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    musicaPlay(5);
+  });
+
+  server.on("/musica3MasterVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    musicaPlay(6);
+  });
+
+  server.on("/musica3SlaveVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(5);
+  });
+
+  server.on("/musica3SlaveVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(6);
+  });
+
+  server.on("/musica3MSVolAlto", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(5);
+    musicaPlay(5);
+  });
+
+  server.on("/musica3MSVolBaixo", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/musica3.html", "text/html");
+    enviaDado(6);
+    musicaPlay(6);
   });
 
   server.on("/music-player2", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -243,23 +440,6 @@ void setup(){
 
   // Inicia o servidor
   server.begin();
-}
-
-// Mensagens enviadas
-void enviaDado(int nMus) {
-  Serial.println("Valor enviado: ");
-  Serial.print(nMus);
-  esp_err_t result;
-
-  myData.a = nMus;
-  result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
-  }
-  else {
-    Serial.println("Error sending the data");
-  }
 }
 
 // Pausa/despausa musica

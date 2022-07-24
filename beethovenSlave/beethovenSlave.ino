@@ -27,7 +27,7 @@ Audio audio;
 bool musRun = 1;
 
 // SSID da rede
-constexpr char WIFI_SSID[] = "Hotspot";
+constexpr char WIFI_SSID[] = "x";
 
 // Encontrar canal do wifi
 int32_t getWiFiChannel(const char *ssid) {
@@ -94,6 +94,14 @@ void musicaPlay() {
     Serial.println("Pausado/Despausado");
     Serial.println();
     musRun = !musRun;
+  } else if (myData.a == 4) {
+    Serial.println("Musica3");
+    Serial.println();
+    audio.connecttoFS(SD,"/musica3.mp3");
+  } else if (myData.a == 5) {
+    audio.setVolume(21);
+  } else if (myData.a == 6) {
+    audio.setVolume(5);
   }
   delay(100);
 }
@@ -155,7 +163,7 @@ void setup() {
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     
     // Volume
-    audio.setVolume(21);
+    audio.setVolume(5);
 
     // Lista arquivos em /
     listDir(SD, "/", 0);
